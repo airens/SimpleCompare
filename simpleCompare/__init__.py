@@ -1,5 +1,7 @@
 from fman import DirectoryPaneCommand, show_alert, load_json, OK, CANCEL, DirectoryPane
-from fman.url import as_human_readable
+from fman.fs import exists
+from fman.url import as_human_readable, join
+
 import subprocess
 from .settings import Settings
 
@@ -29,15 +31,29 @@ class CompareWithSaved(DirectoryPaneCommand):
         global savedToCompare
         return savedToCompare != "" and len(self.get_chosen_files()) == 1
 
-class CompareFiles(DirectoryPaneCommand):
+class CompareByContent(DirectoryPaneCommand):
     def __call__(self):
-        selectedFile1 = self.get_chosen_files()[0]
-        selectedFile2 = self.get_chosen_files()[1]
-        ComparisonToolRunner.compare_files(selectedFile1, selectedFile2)
+        ComparisonToolRunner.compare_files(self.selectedFile1, self.selectedFile2)
         pass
 
     def is_visible(self):
-        return len(self.get_chosen_files()) == 2
+        files_len = len(self.get_chosen_files())
+        self.selectedFile1 = self.pane.get_file_under_cursor()
+        if files_len == 1:
+            other_path = self._other_pane().get_path()
+            if other_path == self.pane.get_path():
+                return false
+            fname = self.selectedFile1
+            self.selectedFile2 = join(other_path, fname.split('/')[-1])
+            return exists(self.selectedFile2)
+        else:
+            self.selectedFile2 = self.get_chosen_files()[1]
+            return files_len == 2
+
+    def _other_pane(self):
+        panes = self.pane.window.get_panes()
+        this_pane = panes.index(self.pane)
+        return panes[(this_pane + 1) % len(panes)]
 
 class ComparisonToolRunner:
     @staticmethod
@@ -51,3 +67,4 @@ def _ifnull(var, val):
   if var is None:
     return val
   return var
+
