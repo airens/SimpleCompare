@@ -1,7 +1,7 @@
 # Compare files and folders using external tool in [fman](https://fman.io/)
 This is improved fork from https://github.com/rjwojcicki/SimpleCompare
 ## Compare by content
-Select file or folder in one pane and run "Compare files" to compare it with another one having the same name in the other pane
+Select file or folder in one pane and run "Compare files" to compare it with another one having the same name in the other pane.
 Select two files or folders in one pane and run "Compare by content" from the Command Palette.
 
 ## Save to compare
